@@ -20,17 +20,20 @@ headers = {
 
 def main():
     print("Welcome to the Movie Guesser game!")
-    # #Api test response
-    # API_Test = requests.get("https://api.themoviedb.org/3/authentication", headers=headers)
-    # print(API_Test.text)
-
-    rand = random.randint(1, 10)#Replace with upperbound on initial data pull
-
+    Selection = GetRandomMovie()
+    print(Selection["original_title"])
+    
+def GetRandomMovie():
     main_data_response = requests.get("https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_original_language=en", headers=headers)
     main_data = main_data_response.json()
     movies = main_data["results"]
-    for movie in movies:
-        print(movie["original_title"])
-        print("------------")
+    rand = random.randint(1, len(movies))#Replace with upperbound on initial data pull
+    return movies[rand]
+    print(movies[rand]["original_title"])
+    # for movie in movies:
+    #     print(movie["original_title"])
+    #     print("------------")
+
 
 main()
+#Next task: Narrow down the Inital Data pull of movies so that only popular movies get in, but also make sure that the page we pull in is also random/we pull more data
