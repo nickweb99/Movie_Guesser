@@ -24,16 +24,17 @@ def main():
     print(Selection["original_title"])
     
 def GetRandomMovie():
-    main_data_response = requests.get("https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_original_language=en", headers=headers)
+    page = random.randint(1, 99)
+    main_data_response = requests.get("https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=99&sort_by=popularity.desc&with_original_language=en&vote_count.gte=1000", headers=headers)
     main_data = main_data_response.json()
     movies = main_data["results"]
     rand = random.randint(1, len(movies))#Replace with upperbound on initial data pull
-    return movies[rand]
-    print(movies[rand]["original_title"])
     # for movie in movies:
     #     print(movie["original_title"])
     #     print("------------")
+    #print(movies[rand])
+    return movies[rand]
+
 
 
 main()
-#Next task: Narrow down the Inital Data pull of movies so that only popular movies get in, but also make sure that the page we pull in is also random/we pull more data
