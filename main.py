@@ -19,6 +19,11 @@ headers = {
     "Authorization": api_key
 }
 
+def clear_last_line():
+    CURSOR_UP_ONE = "\x1b[1A"
+    ERASE_LINE = "\x1b[2K"
+    print(CURSOR_UP_ONE + ERASE_LINE, end="")
+
 def main():
     print("Welcome to the Movie Guesser game!")
     print("Would you like to play? Press 1 for yes and 2 for no.")
@@ -32,13 +37,42 @@ def main():
             return
 
     Selection = GetRandomMovie()
-    print(Selection["original_title"])
-    print("Here is your first clue")
-    guess = input("Name the movie:")
-    if guess == Selection["original_title"]:
-        print("You Win!")
-    else:
-        print("Incorrect")
+    print(Selection)#["original_title"])
+    for i in range(1,6):
+        print(f"Here is your clue number {i}:")
+        GenerateClue(i)
+    
+        while True:
+            guess = input("Name the movie:")
+            if guess == Selection["original_title"]:
+                print("You Win!")
+                break
+            elif guess == "":
+                clear_last_line()
+                continue
+            else:
+                print("Incorrect")
+            break
+
+def GenerateClue(guess):
+    match guess:
+        case 1:
+            return
+        case 2:
+            return
+        case 3:
+            return
+        case 4:
+            return
+        case 5:
+            return
+        
+        #Clue options
+        #Display overview
+        #genre_ids
+        #release_date
+        #Ascii Version of image? 
+        #Cast? not sure if I can get this from the api
 
     
 def GetRandomMovie():
