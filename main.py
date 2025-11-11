@@ -2,6 +2,7 @@
 import configparser
 import requests
 import random
+import secrets
 import json
 import msvcrt
 from rapidfuzz import fuzz
@@ -39,16 +40,18 @@ def main():
 
     Selection = GetRandomMovie()
     Win = False
-    print(Selection)#["original_title"])
+    ClueNums = list(range(1,7))
     for i in range(1,6):
         if Win == True:
             break
-        print(f"Here is your clue number {i}:")
-        GenerateClue(i, Selection)
+
+        Clue = random.choice(ClueNums)
+        ClueNums.remove(Clue)
+        print(f"Here's clue number {i}:")
+        GenerateClue(i, Selection, Clue)
     
         while True:
             guess = input("Name the movie:")
-            #if guess == Selection["original_title"]:
             if guess != "" and CloseGuess(guess, Selection["original_title"]):
                 Win = True
                 break
@@ -72,54 +75,52 @@ def CloseGuess(Input, Model):
     else:
         return False
 
-def GenerateClue(guess, Selection):
-    print(guess)
-    match guess:
-        case 1:
-            return
-        case 2:
-            GenreResponse = requests.get("https://api.themoviedb.org/3/genre/movie/list?language=en", headers=headers)
-            GenreData = GenreResponse.json()
-            Genres = GenreData["genres"]
-            OurGenres = Selection["genre_ids"]
-            print("Here are this movies Genres:")
-            for OurGenre in OurGenres:
-                for Genre in Genres:
-                    if Genre["id"] == OurGenre:
-                        print(Genre['name'])
-                    
-        case 3:
-            print(f"This movie was released on {Selection["release_date"]}")
-        case 4:
-            print(f"This movie starts with the letter: {Selection["original_title"][0]}")
-            return
-        case 5:
-            print("Here is this movies synopsis:")
-            print(Selection["overview"])
-            return
-        
-        #Clue options
-        #Ascii Version of image? 
-        #Cast? not sure if I can get this from the api
+def GenerateClue(guess, Selection, Clue):
+    GenreResponse = requests.get("https://api.themoviedb.org/3/genre/movie/list?language=en", headers=headers)
+    GenreData = GenreResponse.json()
+    Genres = GenreData["genres"]
+    OurGenres = Selection["genre_ids"]
+    CastResponse = requests.get(f"https://api.themoviedb.org/3/movie/{Selection["id"]}/credits", headers=headers)
+    CastData = CastResponse.json()
+    Cast = CastData["cast"]
+    Star = Cast[0]
+    StarName = Star["name"]
+    StarCharacter = Star["character"]
 
+    if guess == 5:
+        print("Here is this movies synopsis:")
+        print(Selection["overview"])
+        return
+    else:
+        match Clue:
+            case 1:
+                print(f"The average rating of this movie is a {Selection["vote_average"]}/10")
+            case 2:
+                print("Here are this movies Genres:")
+                for OurGenre in OurGenres:
+                    for Genre in Genres:
+                        if Genre["id"] == OurGenre:
+                            print(Genre['name'])       
+            case 3:
+                print(f"This movie was released on {Selection["release_date"]}")
+            case 4:
+                print(f"This movie starts with the letter: {Selection["original_title"][0]}")
+                return
+            case 5:
+                print(f"The lead actor in this movie is {StarName}")
+                return
+            case 6:
+                print(f"The lead role in the movie is {StarCharacter}")
+                return
     
 def GetRandomMovie():
-    page = random.randint(1, 99)
-    main_data_response = requests.get("https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=99&sort_by=popularity.desc&with_original_language=en&vote_count.gte=1000", headers=headers)
+    page = secrets.randbelow(99) + 1
+    main_data_response = requests.get(f"https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page={page}&sort_by=popularity.desc&with_original_language=en&vote_count.gte=1000", headers=headers)
     main_data = main_data_response.json()
-    #print(main_data)
     movies = main_data["results"]
-    rand = random.randint(1, len(movies))
-    # for movie in movies:
-    #     print(movie["original_title"])
-    #     print("------------")
-    #print(movies[rand])
+    rand = secrets.randbelow(len(movies)-1) + 1
     return movies[rand]
 
 
 
 main()
-
-#Updates: 
-#Fix randomness, does not seem random enough
-#Make it so that close guesses work if they are close enough
