@@ -5,14 +5,26 @@ import random
 import secrets
 import json
 import msvcrt
+import sys
+import os
 from rapidfuzz import fuzz
 
+def resource_path(relative_path):
+    """Get path to resource, works for dev and PyInstaller"""
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temp folder
+    except AttributeError:
+        base_path = os.path.abspath(".")  # normal script
+
+    return os.path.join(base_path, relative_path)
+
+config_file = resource_path("config.ini")
 config = configparser.ConfigParser()
 
-try:
-    config.read('config.ini')
-except configparser.Error as e:
-    print(f"Error reading config file: {e}")
+read_files = config.read(config_file)
+
+if not read_files:
+    raise FileNotFoundError(f"Config file not found: {config_file}")
 
 api_key = config['API_SETTINGS']['api_key']
 
